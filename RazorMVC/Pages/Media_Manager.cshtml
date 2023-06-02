@@ -1,0 +1,48 @@
+﻿@page
+@model RazorMVC.Pages.Manager
+@using System.Data.SqlClient;
+@{
+    SqlConnection conn =
+        new SqlConnection("server=localhost\\SQLEXPRESS;database=RazorDemo;Trusted_Connection=True;user=RazorUser;pwd=P4$$w0rD4Me;");
+    string query = "select a.artist_name, b.album_name, b.rcdid as 'album_id' from artists a, albums b where b.artist_id=a.rcdid " +
+        "order by a.artist_name, b.album_name;";
+}
+<div class="text-center">
+    <h1 class="display-4">Artists and Albums</h1>
+    @{
+        conn.Open();
+        SqlCommand cmd = new SqlCommand(query, conn);
+        SqlDataReader rdr = cmd.ExecuteReader();
+        <table>
+            <!-- The at-sign before the if is crucial.  The code won't be parsed otherwise and no error will be generated. -->
+            <!-- And note that these are HTML Comments and not C# Comments! -->
+            @if (rdr.HasRows)
+            {
+                <thead>
+                    <tr>
+                        <th>Artist</th>
+                        <th>Album</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @while (rdr.Read())
+                    {
+                        <tr>
+                            <td>@rdr["artist_name"].ToString()</td>
+                            <td>@rdr["album_name"].ToString()</td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <thead><tr><th>There are no records.</th></tr></thead>
+            }
+            @{
+                rdr.Close();
+                conn.Close();
+            }
+        </table>
+    }
+</div>
+
